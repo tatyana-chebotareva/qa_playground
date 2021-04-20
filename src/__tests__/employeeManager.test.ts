@@ -7,6 +7,9 @@ import {
     WebElement,
     Key,
   } from "selenium-webdriver";
+
+  jest.setTimeout(10000);
+
   const chromedriver = require("chromedriver");
   
   const driver: WebDriver = new Builder()
@@ -32,7 +35,9 @@ import {
     afterAll(async () => {
       await driver.quit();
     });
-    describe("handles unsaved, canceled, and saved changes correctly", () => {
+
+    //#1
+    describe("handles unsaved, canceled, and saved changes correctly", () => { 
       test("An unsaved change doesn't persist", async () => {
         /*
         This test follows these steps:
@@ -42,31 +47,32 @@ import {
         4. Open Bernice Ortiz
         5. Verify the name field is the original name
       */
-        await driver.findElement(bernice).click();
+        await driver.findElement(bernice).click(); //Open Bernice Ortiz
         await driver.wait(
-          until.elementIsVisible(await driver.findElement(nameInput))
+          until.elementIsVisible(await driver.findElement(nameInput)) //wait for the name input
         );
-        await driver.findElement(nameInput).clear();
-        await driver.findElement(nameInput).sendKeys("Test Name");
-        await driver.findElement(phillip).click();
+        await driver.findElement(nameInput).clear(); //Edit the name input - clear
+        await driver.findElement(nameInput).sendKeys("Test Name"); //Edit the name input - enter "Test name"
+        await driver.findElement(phillip).click(); //Open Phillip Weaver
         await driver.wait(
           until.elementTextContains(
-            await driver.findElement(nameDisplay),
+            await driver.findElement(nameDisplay), //wait for the name displayed
             "Phillip"
           )
         );
-        await driver.findElement(bernice).click();
+        await driver.findElement(bernice).click(); //Open Bernice Ortiz
         await driver.wait(
           until.elementTextContains(
-            await driver.findElement(nameDisplay),
+            await driver.findElement(nameDisplay), //wait for the name displayed
             "Bernice"
           )
         );
         expect(
-          await (await driver.findElement(nameInput)).getAttribute("value")
+          await (await driver.findElement(nameInput)).getAttribute("value") //check the name was not changed
         ).toBe("Bernice Ortiz");
       });
   
+      //#2
       test("A canceled change doesn't persist", async () => {
         /*
         This test follows these steps:
@@ -75,18 +81,38 @@ import {
         3. Click cancel
         5. Verify the name field is the original name
       */
-        await driver.findElement(phillip).click();
+        await driver.findElement(phillip).click(); //Open Phillip Weaver
         await driver.wait(
-          until.elementIsVisible(await driver.findElement(nameInput))
+          until.elementIsVisible(await driver.findElement(nameInput)) //wait for the name input
         );
-        await driver.findElement(nameInput).clear();
-        await driver.findElement(nameInput).sendKeys("Test Name");
-        await driver.findElement(cancelButton).click();
+        await driver.findElement(nameInput).clear(); //Edit the name input - clear
+        await driver.findElement(nameInput).sendKeys("Test Name"); //Edit the name input - enter "Test name"
+        await driver.findElement(cancelButton).click(); //hit Cancel button
         expect(
-          await (await driver.findElement(nameInput)).getAttribute("value")
+          await (await driver.findElement(nameInput)).getAttribute("value")  //wait for the name displayed
         ).toBe("Phillip Weaver");
+
+        //the test should also have steps: open another employee, get back to the Phillip and check the name again:
+        await driver.findElement(bernice).click(); //Open Bernice Ortiz
+        await driver.wait(
+          until.elementTextContains(
+            await driver.findElement(nameDisplay), //wait for the name displayed
+            "Bernice"
+          )
+        );
+        await driver.findElement(phillip).click(); //Open Phillip Weaver
+        await driver.wait(
+          until.elementTextContains(
+            await driver.findElement(nameDisplay), //wait for the name displayed
+            "Phillip"
+          )
+        );
+        expect(
+            await (await driver.findElement(nameInput)).getAttribute("value") //check the name was not changed
+          ).toBe("Phillip Weaver");
       });
   
+      //#3
       test("A saved change persists", async () => {
         /*
         This test follows these steps:
@@ -97,27 +123,30 @@ import {
         5. Open Bernice Ortiz's old record
         5. Verify the name field is the edited name
         */
-        await driver.findElement(bernice).click();
+        await driver.findElement(bernice).click(); // Open Bernice Ortiz
         await driver.wait(
-          until.elementIsVisible(await driver.findElement(nameInput))
+          until.elementIsVisible(await driver.findElement(nameInput)) // wait for the name input
         );
-        await driver.findElement(nameInput).clear();
-        await driver.findElement(nameInput).sendKeys("Test Name");
-        await driver.findElement(saveButton).click();
-        await driver.findElement(phillip).click();
+        await driver.findElement(nameInput).clear(); // Edit the name input - clear
+        await driver.findElement(nameInput).sendKeys("Test Name"); // Edit the name input - enter "Test Name"
+        await driver.findElement(saveButton).click(); // Hit Save button
+        await driver.findElement(phillip).click(); // Open Phillip Weaver
         await driver.wait(
           until.elementTextContains(
-            await driver.findElement(nameDisplay),
+            await driver.findElement(nameDisplay), // wait for the name to be displayed
             "Phillip"
           )
         );
-        await driver.findElement(bernice).click();
+        await driver.findElement(bernice).click(); // Open Bernice Ortiz
         expect(
-          await (await driver.findElement(nameInput)).getAttribute("value")
-        ).toBe("Bernice Ortiz");
+          await (await driver.findElement(nameInput)).getAttribute("value") // check the name was changed to "Test Name"
+        ).toBe("Test Name");
       });
     });
+
     describe("handles error messages correctly", () => {
+        
+      //#4
       test("shows an error message for an empty name field", async () => {
         /*
         This test follows these steps:
@@ -126,18 +155,21 @@ import {
         3. Save the change
         4. Verify the error is present
         */
-        await driver.findElement(bernice).click();
+        //would be nice to verify that the name was not saved as empty by opening Phillip page and then returning to Bernice page to confirm
+        await driver.findElement(bernice).click(); // Open Bernice Ortiz
         await driver.wait(
-          until.elementIsVisible(await driver.findElement(nameInput))
+          until.elementIsVisible(await driver.findElement(nameInput)) // wait for the name input
         );
-        await driver.findElement(nameInput).clear();
-        await driver.findElement(nameInput).sendKeys(Key.SPACE, Key.BACK_SPACE);
-        await driver.findElement(saveButton).click();
+        await driver.findElement(nameInput).clear(); // Edit the name input - clear
+        await driver.findElement(nameInput).sendKeys(Key.SPACE, Key.BACK_SPACE); // Edit the name input - enter " " then BACKSPACE
+        await driver.findElement(saveButton).click(); // Hit Save button
         await driver.wait(until.elementLocated(errorCard));
-        expect(await (await driver.findElement(errorCard)).getText()).toBe(
+        expect(await (await driver.findElement(errorCard)).getText()).toBe( // Should get an Error message
           "The name field must be between 1 and 30 characters long."
         );
       });
+
+      //#5
       test("lets you cancel out of an error message", async () => {
         /*
         This test follows these steps:
@@ -148,21 +180,23 @@ import {
         5. Cancel the change
         6. Verify the error is gone
         */
-        await driver.findElement(bernice).click();
+        //would be nice to verify that the name was not saved as empty: by opening Phillip page and then returning to Bernice page to confirm
+        //would be nice to have a test that user can actually save valid changes after correcting errors
+        await driver.findElement(bernice).click(); // Open Bernice Ortiz
         await driver.wait(
-          until.elementIsVisible(await driver.findElement(nameInput))
+          until.elementIsVisible(await driver.findElement(nameInput)) // wait for the name input
         );
-        await driver.findElement(nameInput).clear();
-        await driver.findElement(nameInput).sendKeys(Key.SPACE, Key.BACK_SPACE);
-        await driver.findElement(saveButton).click();
+        await driver.findElement(nameInput).clear(); // Edit the name input - clear
+        await driver.findElement(nameInput).sendKeys(Key.SPACE, Key.BACK_SPACE); // Edit the name input - enter " " then BACKSPACE
+        await driver.findElement(saveButton).click(); // Hit Save button
         await driver.wait(until.elementLocated(errorCard));
-        expect(await (await driver.findElement(errorCard)).getText()).toBe(
+        expect(await (await driver.findElement(errorCard)).getText()).toBe( // Should get an Error message
           "The name field must be between 1 and 30 characters long."
         );
-        await driver.findElement(nameInput).sendKeys(Key.SPACE);
-        await driver.findElement(saveButton).click();
+        await driver.findElement(nameInput).sendKeys(Key.SPACE); // Edit the name input - enter " "
+        await driver.findElement(saveButton).click(); // Hit Save button
         driver.wait(() => true, 500);
-        expect(await driver.findElements(errorCard)).toHaveLength(0);
+        expect(await driver.findElements(errorCard)).toHaveLength(0); // Error message should be gone
       });
     });
   });
