@@ -1,5 +1,7 @@
 import { Builder, By, Capabilities, WebDriver } from "selenium-webdriver";
 
+jest.setTimeout(6000); //tests are failing, had to set another timeout
+
 const chromedriver = require("chromedriver");
 
 const driver: WebDriver = new Builder()
@@ -20,7 +22,7 @@ describe("The calculator", () => {
       await clickButton(driver, "2");
       await clickButton(driver, "=");
       let result = await getDisplay(driver);
-      // your assertion here
+      expect(result).toBe("4");
     });
     it("can do 5-7", async () => {
       await clickButton(driver, "5");
@@ -28,7 +30,7 @@ describe("The calculator", () => {
       await clickButton(driver, "7");
       await clickButton(driver, "=");
       let result = await getDisplay(driver);
-      // your assertion here
+      expect(result).toBe("-2");
     });
     it("can do 18×2", async () => {
       await clickButton(driver, "1");
@@ -37,7 +39,7 @@ describe("The calculator", () => {
       await clickButton(driver, "2");
       await clickButton(driver, "=");
       let result = await getDisplay(driver);
-      // your assertion here
+      expect(result).toBe("36");
     });
     it("can do 75÷10", async () => {
       await clickButton(driver, "7");
@@ -47,10 +49,55 @@ describe("The calculator", () => {
       await clickButton(driver, "0");
       await clickButton(driver, "=");
       let result = await getDisplay(driver);
-      // your assertion here
+      expect(result).toBe("7.5");
     });
   });
-  describe("does more complicated math", () => {});
+  describe("does more complicated math", () => {
+    it("can do 2 ÷ (-2)", async () => {
+        await clickButton(driver, "2");
+        await clickButton(driver, "÷");
+        await clickButton(driver, "2");
+        await clickButton(driver, "+/-");
+        await clickButton(driver, "=");
+        let result = await getDisplay(driver);
+        expect(result).toBe("-1");
+    });
+    it("can do 3.14159 × 15 × 15", async () => {
+        await clickButton(driver, "3");
+        await clickButton(driver, ".");
+        await clickButton(driver, "1");
+        await clickButton(driver, "4");
+        await clickButton(driver, "1");
+        await clickButton(driver, "5");
+        await clickButton(driver, "9");
+        await clickButton(driver, "×");
+        await clickButton(driver, "1");
+        await clickButton(driver, "5");
+        await clickButton(driver, "×");
+        await clickButton(driver, "1");
+        await clickButton(driver, "5");
+        await clickButton(driver, "=");
+        let result = await getDisplay(driver);
+        expect(result).toBe("706.85775");
+    });
+    it("can do (-22 - 5 + 12) × 200", async () => {
+        await clickButton(driver, "2");
+        await clickButton(driver, "2");
+        await clickButton(driver, "+/-");
+        await clickButton(driver, "-");
+        await clickButton(driver, "5");
+        await clickButton(driver, "+");
+        await clickButton(driver, "1");
+        await clickButton(driver, "2");
+        await clickButton(driver, "×");
+        await clickButton(driver, "2");
+        await clickButton(driver, "0");
+        await clickButton(driver, "0");
+        await clickButton(driver, "=");
+        let result = await getDisplay(driver);
+        expect(result).toBe("-3000");
+    });
+  });
 });
 
 /** Pass in the driver, and a string matching the button you want to click, and the button will be clicked
