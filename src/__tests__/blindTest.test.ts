@@ -1,7 +1,7 @@
 import { PracticePage } from ".././PracticePage";
+import { WebDriver, Builder, Capabilities, By, until } from "selenium-webdriver";
 
 const chromedriver = require("chromedriver");
-import { WebDriver, Builder, Capabilities, By, until } from "selenium-webdriver";
 const driver: WebDriver = new Builder()
   .withCapabilities(Capabilities.chrome())
   .build();
@@ -22,7 +22,7 @@ describe("Test suite", () => {
 
   describe("Test suite", () => { 
     test("My test", async () => {
-      var searchTerm = "teacher";
+      var searchTerm = "tutorial";
       page.searchStories(searchTerm); //should search if provided selector is correct
       var titles = page.getStoryTitles();
       await titles.then(titles => {
